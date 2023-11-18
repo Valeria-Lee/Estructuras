@@ -3,11 +3,13 @@ class NodoB:
         self.hoja = hoja
         self.claves = []
         self.hijos = []
+        
 
 class ArbolB:
-    def __init__(self, grado):
+    def __init__(self, grado, t=0):
         self.raiz = NodoB()
         self.grado = grado
+        self.t = t
 
     def insertar(self, valor):
         if valor not in self.buscar(self.raiz, valor):
@@ -57,12 +59,49 @@ class ArbolB:
         else:
             return self.buscar(nodo.hijos[i], valor)
 
+    def eliminar(self, x, valor):
+        t = self.t
+        i = 0
+        while i < len(x.claves) and valor > x.claves[i]:
+            i += 1
+        if x.hoja:
+            if i < len(x.claves) and x.claves[i] == valor:
+                x.claves.pop(i)
+                return
+            return
+
+        if i < len(x.claves) and x.claves[i] == valor:
+            return self.eliminar_nodo_interno(x, valor, i)
+        elif len(x.hijos[i].claves) >= t:
+            self.eliminar(x.hijos[i], valor)
+        else:
+            if i != 0 and i + 2 < len(x.hijo):
+                if len(x.hijos[i - 1].claves) >= t:
+                    self.eliminar_hermano(x, i, i - 1)
+                elif len(x.hijos[i + 1].claves) >= t:
+                    self.eliminar_hermano(x, i, i + 1)
+                else:
+                    self.eliminar_combinar(x, i, i + 1)
+            elif i == 0:
+                if len(x.hijo[i + 1].claves) >= t:
+                    self.eliminar_hermano(x, i, i + 1)
+                else:
+                    self.eliminar_combinar(x, i, i + 1)
+            elif i + 1 == len(x.hijo):
+                if len(x.hijo[i - 1].claves) >= t:
+                    self.eliminar_hermano(x, i, i - 1)
+                else:
+                    self.eliminar_combinar(x, i, i - 1)
+            self.eliminar(x.hijo[i], valor)
+
 def main():
     arbol_b = ArbolB(grado=2)
 
     valores_a_insertar = [3, 8, 12, 15, 20, 25, 6, 9, 14]
     for valor in valores_a_insertar:
         arbol_b.insertar(valor)
+    
+    arbol_b.eliminar(arbol_b.raiz,12)
 
     valor_buscar = int(input('¿Que valor buscar? -> '))
     nodo_encontrado = arbol_b.buscar(arbol_b.raiz, valor_buscar)
